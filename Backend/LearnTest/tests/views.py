@@ -5,13 +5,19 @@ from .models import Test, Question, TestResult
 from .serializer import (
     TestSerializer,
     QuestionSerializer,
-    TestResultSerializer
+    TestResultSerializer,
+    UserRegistrationSerializer
 )
 from .permissions import (
     IsOwnerOrReadOnly,
     IsTeacherOrAdmin,
     IsStudentUser
 )
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 # Create your views here.
 
@@ -58,3 +64,12 @@ class TestResultViewSet(viewsets.ModelViewSet):
         return TestResult.objects.filter(
             user=self.request.user
         )
+
+
+class UserViewSet(viewsets.GenericViewSet):
+    @action(detail=False, methods=['post'])
+    def register(self, request):
+        serializer = UserRegistrationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response({'id': user.id, 'username': user.username})

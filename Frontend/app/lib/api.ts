@@ -57,6 +57,14 @@ export const auth = {
     const response = await axios.post(`${API_URL}-token-auth/`, credentials);
     return response.data;
   },
+  register: async (data: {
+    username: string;
+    email: string;
+    password: string;
+  }) => {
+    const response = await api.post('/register/', data);
+    return response.data;
+  }
 };
 
 export const tests = {

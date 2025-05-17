@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '../lib/api';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -71,6 +72,12 @@ export default function LoginPage() {
             {loading ? 'Вход...' : 'Войти'}
           </button>
         </form>
+        <div className="mt-4 text-center">
+          <span className="text-sm text-gray-600">Нет аккаунта? </span>
+          <Link href="/register" className="text-blue-600 hover:underline">
+            Зарегистрироваться
+          </Link>
+        </div>
       </div>
     </div>
   );
