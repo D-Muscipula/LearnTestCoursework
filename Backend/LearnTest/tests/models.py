@@ -96,3 +96,39 @@ class Answer(models.Model):
     def __str__(self):
         # pylint: disable=no-member
         return f"Ответ к вопросу: {self.question.text[:50]}"
+
+
+class TestResult(models.Model):
+    """Результат прохождения теста пользователем"""
+    user: ForeignKey = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='test_results',
+        verbose_name="Пользователь"
+    )
+    test: ForeignKey = models.ForeignKey(
+        Test,
+        on_delete=models.CASCADE,
+        related_name='results',
+        verbose_name="Тест"
+    )
+    score: PositiveIntegerField = models.PositiveIntegerField(
+        verbose_name="Набранные баллы"
+    )
+    passed_at: DateTimeField = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Дата прохождения"
+    )
+    is_passed: BooleanField = models.BooleanField(
+        default=False,
+        verbose_name="Тест пройден"
+    )
+
+    class Meta:
+        verbose_name = "Результат теста"
+        verbose_name_plural = "Результаты тестов"
+        unique_together = ['user', 'test']
+
+    def __str__(self):
+        # pylint: disable=no-member
+        return f"Результат теста {self.test.title} для {self.user.username}"
