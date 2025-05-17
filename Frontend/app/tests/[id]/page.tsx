@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { tests, Test } from '../../lib/api';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 
 export default function TestDetailsPage() {
   const params = useParams();
@@ -26,34 +28,78 @@ export default function TestDetailsPage() {
     fetchTest();
   }, [testId]);
 
-  if (loading) return <div>Загрузка...</div>;
-  if (error) return <div className="text-red-500">{error}</div>;
-  if (!test) return <div>Тест не найден</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow bg-gray-100 p-8 flex items-center justify-center">
+          <div className="text-xl">Загрузка теста...</div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow bg-gray-100 p-8 flex items-center justify-center">
+          <div className="text-xl text-red-500">{error}</div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!test) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow bg-gray-100 p-8 flex items-center justify-center">
+          <div className="text-xl">Тест не найден</div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">{test.title}</h1>
-      <p className="mb-6">{test.description}</p>
-      <div className="space-y-4">
-        {test.questions.map((question) => (
-          <div key={question.id} className="border p-4 rounded">
-            <h3 className="font-semibold">{question.text}</h3>
-            <ul className="mt-2 space-y-2">
-              {question.answers.map((answer) => (
-                <li key={answer.id}>
-                  <label className="flex items-center">
-                    <input type="radio" name={`question-${question.id}`} className="mr-2" />
-                    {answer.text}
-                  </label>
-                </li>
-              ))}
-            </ul>
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-grow bg-gray-100 p-8">
+        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
+          <h1 className="text-2xl font-bold mb-4">{test.title}</h1>
+          <p className="mb-6 text-gray-600">{test.description}</p>
+          
+          <div className="space-y-6">
+            {test.questions.map((question) => (
+              <div key={question.id} className="border border-gray-200 rounded-lg p-4">
+                <h3 className="font-semibold text-lg mb-3">{question.text}</h3>
+                <ul className="space-y-2">
+                  {question.answers.map((answer) => (
+                    <li key={answer.id}>
+                      <label className="flex items-center space-x-2">
+                        <input 
+                          type="radio" 
+                          name={`question-${question.id}`} 
+                          className="h-4 w-4 text-indigo-600"
+                        />
+                        <span>{answer.text}</span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <button className="mt-6 bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700">
-        Отправить ответы
-      </button>
+
+          <button className="mt-8 w-full bg-gray-800 text-white py-3 rounded-lg hover:bg-gray-700 transition">
+            Отправить ответы
+          </button>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }
