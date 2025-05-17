@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from rest_framework.authtoken import views
 from tests.views import TestViewSet, QuestionViewSet, TestResultViewSet
 
 router = DefaultRouter()
@@ -27,4 +28,5 @@ router.register(r'results', TestResultViewSet, basename='test-result')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('api-token-auth/', views.obtain_auth_token),
 ]
