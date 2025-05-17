@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { auth } from '../lib/api';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -27,25 +28,23 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    
+    // Проверка совпадения паролей
+    if (formData.password !== formData.passwordConfirm) {
+      setError('Пароли не совпадают');
+      return;
+    }
+
     setLoading(true);
-
     try {
-      // Здесь будет запрос к API
-      const response = await fetch('http://localhost:8000/api/register/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
+      await auth.register({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password
       });
-
-      if (!response.ok) {
-        throw new Error('Ошибка регистрации');
-      }
-
       router.push('/login');
     } catch (err: any) {
-      setError(err.message || 'Ошибка при регистрации');
+      setError(err.response?.data?.message || 'Ошибка при регистрации');
     } finally {
       setLoading(false);
     }

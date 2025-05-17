@@ -62,7 +62,11 @@ export const auth = {
     email: string;
     password: string;
   }) => {
-    const response = await api.post('/register/', data);
+    const response = await axios.post(`${API_URL}/users/register/`, data, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
     return response.data;
   }
 };

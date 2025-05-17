@@ -18,12 +18,13 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework.authtoken import views
-from tests.views import TestViewSet, QuestionViewSet, TestResultViewSet
-
+from tests.views import TestViewSet, QuestionViewSet, TestResultViewSet, UserViewSet
+"""  """
 router = DefaultRouter()
 router.register(r'tests', TestViewSet, basename='test')
 router.register(r'questions', QuestionViewSet, basename='question')
 router.register(r'results', TestResultViewSet, basename='test-result')
+router.register(r'users', UserViewSet, basename='user')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

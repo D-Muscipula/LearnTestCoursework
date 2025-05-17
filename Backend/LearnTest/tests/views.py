@@ -67,6 +67,8 @@ class TestResultViewSet(viewsets.ModelViewSet):
 
 
 class UserViewSet(viewsets.GenericViewSet):
+    permission_classes = [permissions.AllowAny]
+
     @action(detail=False, methods=['post'])
     def register(self, request):
         serializer = UserRegistrationSerializer(data=request.data)
