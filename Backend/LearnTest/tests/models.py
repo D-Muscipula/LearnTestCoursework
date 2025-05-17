@@ -49,3 +49,50 @@ class Test(models.Model):
 
     def __str__(self) -> str:
         return str(self.title)
+
+
+class Question(models.Model):
+    """Модель вопроса в тесте"""
+    test: ForeignKey = models.ForeignKey(
+        Test,
+        on_delete=models.CASCADE,
+        related_name='questions',
+        verbose_name="Тест"
+    )
+    text: TextField = models.TextField(verbose_name="Текст вопроса")
+    order: PositiveIntegerField = models.PositiveIntegerField(
+        default=0,
+        verbose_name="Порядковый номер"
+    )
+
+    class Meta:
+        verbose_name = "Вопрос"
+        verbose_name_plural = "Вопросы"
+        ordering = ['order']
+
+    def __str__(self):
+        # pylint: disable=no-member
+        return f"Вопрос {self.order} из теста {self.test.title}"
+
+
+class Answer(models.Model):
+    """Модель ответа для вопроса"""
+    question: ForeignKey = models.ForeignKey(
+        Question,
+        on_delete=models.CASCADE,
+        related_name='answers',
+        verbose_name="Вопрос"
+    )
+    text: TextField = models.TextField(verbose_name="Текст ответа")
+    is_correct: BooleanField = models.BooleanField(
+        default=False, 
+        verbose_name="Правильный ответ"
+    )
+
+    class Meta:
+        verbose_name = "Ответ"
+        verbose_name_plural = "Ответы"
+
+    def __str__(self):
+        # pylint: disable=no-member
+        return f"Ответ к вопросу: {self.question.text[:50]}"
