@@ -84,6 +84,12 @@ export const tests = {
     return response.data;
   },
   
+  getResult: async (resultId: number) => {
+    const response = await api.get<TestResult>(`/results/${resultId}/`);
+    console.log(response.data);
+    return response.data;
+  },
+  
   submitResult: async (testId: number, answers: Record<number, number>) => {
     const response = await api.post<TestResult>('/results/', {
       test: testId,

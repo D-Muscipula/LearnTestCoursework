@@ -1,32 +1,73 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { tests, Test } from '../../lib/api';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { tests } from '../../lib/api';
+import type { Test, Question } from '../../lib/api';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
-export default function TestDetailsPage() {
-  const params = useParams();
-  const testId = Number(params.id);
+export default function TestPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
   const [test, setTest] = useState<Test | null>(null);
+  const [answers, setAnswers] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [timeLeft, setTimeLeft] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchTest = async () => {
       try {
-        const data = await tests.getById(testId);
-        setTest(data);
+        const testData = await tests.getById(parseInt(params.id));
+        setTest(testData);
+        setTimeLeft(testData.time_limit * 60); // Конвертируем минуты в секунды
       } catch (err) {
-        setError('Тест не найден');
+        setError('Ошибка при загрузке теста');
       } finally {
         setLoading(false);
       }
     };
-
     fetchTest();
-  }, [testId]);
+  }, [params.id]);
+
+  useEffect(() => {
+    if (timeLeft <= 0) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          handleSubmit(); // Автоматическая отправка при истечении времени
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+
+  const handleAnswerChange = (questionId: number, answerId: number) => {
+    setAnswers(prev => ({
+      ...prev,
+      [questionId]: answerId
+    }));
+  };
+
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    try {
+      const result = await tests.submitResult(parseInt(params.id), answers);
+      router.push(`/results/${result.id}`);
+    } catch (err) {
+      setError('Ошибка при отправке результатов');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -64,39 +105,63 @@ export default function TestDetailsPage() {
     );
   }
 
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow bg-gray-100 p-8">
         <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
-          <h1 className="text-2xl font-bold mb-4">{test.title}</h1>
-          <p className="mb-6 text-gray-600">{test.description}</p>
+          <div className="mb-4 flex justify-between items-center">
+            <h1 className="text-2xl font-bold">{test.title}</h1>
+            <div className="text-lg font-semibold">
+              Осталось времени: {formatTime(timeLeft)}
+            </div>
+          </div>
           
           <div className="space-y-6">
-            {test.questions.map((question) => (
-              <div key={question.id} className="border border-gray-200 rounded-lg p-4">
-                <h3 className="font-semibold text-lg mb-3">{question.text}</h3>
-                <ul className="space-y-2">
+            {test.questions.map((question: Question) => (
+              <div key={question.id} className="bg-white p-4 rounded-lg shadow">
+                <h3 className="text-lg font-medium mb-3">
+                  {question.order}. {question.text}
+                </h3>
+                <div className="space-y-2">
                   {question.answers.map((answer) => (
-                    <li key={answer.id}>
-                      <label className="flex items-center space-x-2">
-                        <input 
-                          type="radio" 
-                          name={`question-${question.id}`} 
-                          className="h-4 w-4 text-indigo-600"
-                        />
-                        <span>{answer.text}</span>
-                      </label>
-                    </li>
+                    <label key={answer.id} className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name={`question-${question.id}`}
+                        checked={answers[question.id] === answer.id}
+                        onChange={() => handleAnswerChange(question.id, answer.id)}
+                        className="form-radio"
+                      />
+                      <span>{answer.text}</span>
+                    </label>
                   ))}
-                </ul>
+                </div>
               </div>
             ))}
           </div>
 
-          <button className="mt-8 w-full bg-gray-800 text-white py-3 rounded-lg hover:bg-gray-700 transition">
-            Отправить ответы
-          </button>
+          <div className="mt-6 flex justify-between">
+            <button
+              onClick={() => router.back()}
+              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+            >
+              Назад
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-blue-400"
+            >
+              {isSubmitting ? 'Отправка...' : 'Завершить тест'}
+            </button>
+          </div>
         </div>
       </main>
       <Footer />

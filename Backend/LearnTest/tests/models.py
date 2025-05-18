@@ -100,26 +100,26 @@ class Answer(models.Model):
 
 class TestResult(models.Model):
     """Результат прохождения теста пользователем"""
-    user: ForeignKey = models.ForeignKey(
+    user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='test_results',
         verbose_name="Пользователь"
     )
-    test: ForeignKey = models.ForeignKey(
+    test = models.ForeignKey(
         Test,
         on_delete=models.CASCADE,
         related_name='results',
         verbose_name="Тест"
     )
-    score: PositiveIntegerField = models.PositiveIntegerField(
+    score = models.PositiveIntegerField(
         verbose_name="Набранные баллы"
     )
-    passed_at: DateTimeField = models.DateTimeField(
+    passed_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Дата прохождения"
     )
-    is_passed: BooleanField = models.BooleanField(
+    is_passed = models.BooleanField(
         default=False,
         verbose_name="Тест пройден"
     )
@@ -127,7 +127,6 @@ class TestResult(models.Model):
     class Meta:
         verbose_name = "Результат теста"
         verbose_name_plural = "Результаты тестов"
-        unique_together = ['user', 'test']
 
     def __str__(self):
         # pylint: disable=no-member
