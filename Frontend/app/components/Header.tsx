@@ -16,16 +16,15 @@ const Header: React.FC = () => {
   return (
     <header className="w-full bg-gray-800 text-white p-4 shadow-md">
       <div className="container mx-auto flex justify-between items-center">
-        
-        <div className="flex items-center space-x-2">
+        <Link href="/" className="flex items-center space-x-2 cursor-pointer">
           <img
             src="/owl-logo.png"
             alt="Owl Logo"
             className="h-10 w-auto"
           />
           <span className="font-bold text-lg">Тестирование студентов</span>
-        </div>
-
+        </Link>
+        
         <nav className="flex space-x-4">
           <Link href="/" className="hover:text-gray-400">
             Главная
