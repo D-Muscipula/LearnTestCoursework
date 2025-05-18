@@ -24,12 +24,15 @@ const Header: React.FC = () => {
           localStorage.removeItem('is_teacher');
           setIsLoggedIn(false);
           setIsTeacher(false);
+          router.push('/login');
         }
+      } else {
+        router.push('/login');
       }
     };
 
     checkUserStatus();
-  }, []);
+  }, [router]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -38,6 +41,7 @@ const Header: React.FC = () => {
     setIsTeacher(false);
     router.push('/login');
   };
+
 
   return (
     <header className="w-full bg-gray-800 text-white p-4 shadow-md">
@@ -56,29 +60,18 @@ const Header: React.FC = () => {
             Тесты
           </Link>
           
-          {isLoggedIn && isTeacher && (
+          {isTeacher && (
             <Link href="/tests/create" className="hover:text-gray-400">
               Создать тест
             </Link>
           )}
  
-          {isLoggedIn ? (
-            <button
-              onClick={handleLogout}
-              className="hover:text-gray-400"
-            >
-              Выйти
-            </button>
-          ) : (
-            <>
-              <Link href="/login" className="hover:text-gray-400">
-                Войти
-              </Link>
-              <Link href="/register" className="hover:text-gray-400">
-                Регистрация
-              </Link>
-            </>
-          )}
+          <button
+            onClick={handleLogout}
+            className="hover:text-gray-400"
+          >
+            Выйти
+          </button>
         </nav>
       </div>
     </header>
