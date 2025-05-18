@@ -50,7 +50,7 @@ const Header: React.FC = () => {
           <img
             src="/owl-logo.png"
             alt="Owl Logo"
-            className="h-10 w-auto"
+            className="h-12 w-12 rounded-full object-cover"
           />
           <span className="font-bold text-lg">Тестирование студентов</span>
         </Link>
