@@ -75,8 +75,15 @@ class TestResultViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        """Возвращает результаты только текущего пользователя."""
-        return TestResult.objects.filter(user=self.request.user)
+        """Возвращает результаты в зависимости от роли пользователя."""
+        user = self.request.user
+        
+        # Для администраторов и преподавателей - все результаты
+        if user.is_staff or (hasattr(user, 'is_teacher') and user.is_teacher):
+            return TestResult.objects.select_related('test', 'user').all()
+        
+        # Для студентов - только их собственные результаты
+        return TestResult.objects.filter(user=user)
 
     def retrieve(self, request, *args, **kwargs):
         """Получение конкретного результата теста."""
@@ -138,6 +145,24 @@ class TestResultViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(result)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'])
+    def teacher(self, request):
+        """Получение результатов для преподавателя."""
+        if not (request.user.is_staff or 
+                (hasattr(request.user, 'is_teacher') and request.user.is_teacher)):
+            return Response(
+                {'detail': 'Доступ разрешен только преподавателям'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Получаем только результаты тестов, созданных текущим преподавателем
+        results = TestResult.objects.filter(
+            test__created_by=request.user
+        ).select_related('test', 'user')
+        
+        serializer = self.get_serializer(results, many=True)
+        return Response(serializer.data)
 
 
 class UserViewSet(viewsets.GenericViewSet):

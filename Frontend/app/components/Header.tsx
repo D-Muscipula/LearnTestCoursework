@@ -60,9 +60,15 @@ const Header: React.FC = () => {
             Тесты
           </Link>
           
-          {isTeacher && (
+          {isLoggedIn && isTeacher && (
             <Link href="/tests/create" className="hover:text-gray-400">
               Создать тест
+            </Link>
+          )}
+          
+          {isLoggedIn && isTeacher && (
+            <Link href="/tests/results" className="hover:text-gray-400">
+              Результаты
             </Link>
           )}
  

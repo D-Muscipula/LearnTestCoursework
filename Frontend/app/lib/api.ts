@@ -47,7 +47,16 @@ export interface Answer {
 
 export interface TestResult {
   id: number;
-  test: number;
+  test: {
+    id: number;
+    title: string;
+  };
+  user: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    group_number: string;
+  };
   score: number;
   passed_at: string;
   is_passed: boolean;
@@ -117,6 +126,11 @@ export const tests = {
 
   create: async (data: CreateTestData) => {
     const response = await api.post<Test>('/tests/', data);
+    return response.data;
+  },
+
+  getAllResults: async () => {
+    const response = await api.get<TestResult[]>('/results/teacher/');
     return response.data;
   },
 };
