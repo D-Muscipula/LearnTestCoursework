@@ -83,7 +83,7 @@ class TestResultViewSet(viewsets.ModelViewSet):
             return TestResult.objects.select_related('test', 'user').all()
         
         # Для студентов - только их собственные результаты
-        return TestResult.objects.filter(user=user)
+        return TestResult.objects.filter(user=user).select_related('test', 'user')
 
     def retrieve(self, request, *args, **kwargs):
         """Получение конкретного результата теста."""
@@ -150,16 +150,15 @@ class TestResultViewSet(viewsets.ModelViewSet):
     def teacher(self, request):
         """Получение результатов для преподавателя."""
         if not (request.user.is_staff or 
-                (hasattr(request.user, 'is_teacher') and request.user.is_teacher)):
+                (hasattr(request.user, 'is_teacher') and 
+                 request.user.is_teacher)):
             return Response(
                 {'detail': 'Доступ разрешен только преподавателям'},
                 status=status.HTTP_403_FORBIDDEN
             )
         
-        # Получаем только результаты тестов, созданных текущим преподавателем
-        results = TestResult.objects.filter(
-            test__created_by=request.user
-        ).select_related('test', 'user')
+        # Получаем результаты всех тестов для преподавателей
+        results = TestResult.objects.select_related('test', 'user').all()
         
         serializer = self.get_serializer(results, many=True)
         return Response(serializer.data)

@@ -65,14 +65,27 @@ class TestSerializer(serializers.ModelSerializer):
 
 class TestResultSerializer(serializers.ModelSerializer):
     """Сериализатор TestResult с результатами пользователя."""
-    user = serializers.HiddenField(
-        default=serializers.CurrentUserDefault()
-    )
+    user = serializers.SerializerMethodField()
+    test = serializers.SerializerMethodField()
 
     class Meta:
         model = TestResult
         fields = ['id', 'test', 'user', 'score', 'passed_at', 'is_passed']
         read_only_fields = ['passed_at']
+
+    def get_user(self, obj):
+        return {
+            'id': obj.user.id,
+            'first_name': obj.user.first_name,
+            'last_name': obj.user.last_name,
+            'group_number': getattr(obj.user, 'group_number', '')
+        }
+
+    def get_test(self, obj):
+        return {
+            'id': obj.test.id,
+            'title': obj.test.title
+        }
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
