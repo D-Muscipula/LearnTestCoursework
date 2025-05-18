@@ -32,12 +32,30 @@ class TestViewSet(viewsets.ModelViewSet):
     ]
 
     def get_queryset(self):
-        """Возвращает опубликованные тесты или тесты текущего пользователя."""
+        """Возвращает тесты в зависимости от роли пользователя."""
+        user = self.request.user
+        if user.is_staff or user.is_superuser:
+            return Test.objects.all()
+        
+        if hasattr(user, 'is_teacher') and user.is_teacher:
+            return Test.objects.filter(created_by=user)
+        
+        # Для студентов показываем только опубликованные тесты их группы
         return Test.objects.filter(
             is_published=True
-        ) | Test.objects.filter(
-            created_by=self.request.user
+        ).filter(
+            allowed_groups__icontains=user.group_number
         )
+
+    def perform_create(self, serializer):
+        """Создание теста с проверкой прав."""
+        if not (self.request.user.is_staff or 
+                hasattr(self.request.user, 'is_teacher') and 
+                self.request.user.is_teacher):
+            raise permissions.PermissionDenied(
+                "Только преподаватели могут создавать тесты"
+            )
+        serializer.save(created_by=self.request.user)
 
 
 class QuestionViewSet(viewsets.ModelViewSet):
@@ -82,6 +100,20 @@ class TestResultViewSet(viewsets.ModelViewSet):
             return Response(
                 {'error': 'Тест не найден'},
                 status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Проверяем доступ к тесту
+        if not test.is_published:
+            return Response(
+                {'error': 'Тест не опубликован'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Проверяем группу студента
+        if not test.is_group_allowed(request.user.group_number):
+            return Response(
+                {'error': 'Тест недоступен для вашей группы'},
+                status=status.HTTP_403_FORBIDDEN
             )
 
         correct_answers = 0

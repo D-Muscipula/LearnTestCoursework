@@ -35,6 +35,11 @@ class Test(models.Model):
     )
     is_published: BooleanField = models.BooleanField(
         default=False, verbose_name="Опубликован")
+    allowed_groups: TextField = models.TextField(
+        blank=True,
+        verbose_name="Доступные группы",
+        help_text="Список групп через запятую"
+    )
 
     class Meta:
         """Мета-класс для настройки модели Test.
@@ -49,6 +54,16 @@ class Test(models.Model):
 
     def __str__(self) -> str:
         return str(self.title)
+
+    def is_group_allowed(self, group: str) -> bool:
+        """Проверяет, разрешен ли доступ для указанной группы."""
+        if not self.allowed_groups:
+            return False
+        allowed_groups = [
+            g.strip().lower() 
+            for g in self.allowed_groups.split(',')
+        ]
+        return group.lower() in allowed_groups
 
 
 class Question(models.Model):
@@ -131,3 +146,11 @@ class TestResult(models.Model):
     def __str__(self):
         # pylint: disable=no-member
         return f"Результат теста {self.test.title} для {self.user.username}"
+
+
+User.add_to_class('group_number', models.CharField(
+    max_length=50,
+    blank=True,
+    null=True,
+    verbose_name="Номер группы"
+))

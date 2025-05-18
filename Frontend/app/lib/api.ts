@@ -29,6 +29,7 @@ export interface Test {
   description: string;
   time_limit: number;
   is_published: boolean;
+  allowed_groups: string;
   questions: Question[];
 }
 
@@ -52,6 +53,22 @@ export interface TestResult {
   is_passed: boolean;
 }
 
+export interface CreateTestData {
+  title: string;
+  description: string;
+  time_limit: number;
+  is_published: boolean;
+  allowed_groups: string;
+  questions: {
+    text: string;
+    order: number;
+    answers: {
+      text: string;
+      is_correct: boolean;
+    }[];
+  }[];
+}
+
 export const auth = {
   login: async (credentials: LoginCredentials) => {
     const response = await axios.post(`${API_URL}-token-auth/`, credentials);
@@ -62,7 +79,7 @@ export const auth = {
     password: string;
     first_name: string;
     last_name: string;
-    group_number?: string | null;
+    group_number: string;
   }) => {
     const response = await axios.post(`${API_URL}/users/register/`, data);
     return response.data;
@@ -95,6 +112,11 @@ export const tests = {
       test: testId,
       answers,
     });
+    return response.data;
+  },
+
+  create: async (data: CreateTestData) => {
+    const response = await api.post<Test>('/tests/', data);
     return response.data;
   },
 };
