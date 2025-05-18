@@ -1,63 +1,86 @@
 'use client';
 
-import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import { auth } from './lib/api';
 
 export default function HomePage() {
+  const router = useRouter();
+  const [user, setUser] = useState<{
+    is_teacher: boolean;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const userData = await auth.verifyToken();
+        setUser(userData);
+      } catch {
+        router.push('/login');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkUser();
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl">Загрузка...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow bg-gray-100">
-        <div className="container mx-auto px-4 py-16">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-6">
-              LearnTest: Платформа для онлайн-тестирования
+      <main className="flex-grow bg-gray-100 py-12">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="bg-white shadow-md rounded-lg p-8">
+            <h1 className="text-3xl font-bold mb-6">
+              Добро пожаловать в LearnTest
             </h1>
             
-            <div className="bg-white shadow-lg rounded-lg p-8 mb-8">
-              <p className="text-xl text-gray-700 mb-6 leading-relaxed">
-                LearnTest - современная образовательная платформа, 
-                которая помогает преподавателям создавать и проводить 
-                тестирование, а студентам - эффективно проходить обучение.
-              </p>
-              
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="bg-blue-50 p-6 rounded-lg">
-                  <h2 className="text-xl font-semibold text-blue-800 mb-4">
-                    Для преподавателей
-                  </h2>
-                  <ul className="text-gray-700 space-y-2">
-                    <li>• Создание тестов</li>
-                    <li>• Настройка доступа по группам</li>
-                    <li>• Контроль результатов</li>
-                  </ul>
-                </div>
-                
-                <div className="bg-green-50 p-6 rounded-lg">
-                  <h2 className="text-xl font-semibold text-green-800 mb-4">
-                    Для студентов
-                  </h2>
-                  <ul className="text-gray-700 space-y-2">
-                    <li>• Прохождение тестов</li>
-                    <li>• Мгновенная оценка знаний</li>
-                    <li>• История результатов</li>
-                  </ul>
-                </div>
-                
-                <div className="bg-purple-50 p-6 rounded-lg">
-                  <h2 className="text-xl font-semibold text-purple-800 mb-4">
-                    Преимущества
-                  </h2>
-                  <ul className="text-gray-700 space-y-2">
-                    <li>• Удобный интерфейс</li>
-                    <li>• Гибкая настройка тестов</li>
-                    <li>• Безопасность данных</li>
-                  </ul>
+            {user && !user.is_teacher && (
+              <div>
+                <p className="mb-4">
+                  Здесь вы можете проходить тесты и отслеживать свои результаты.
+                </p>
+                <a 
+                  href="/tests" 
+                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                >
+                  Перейти к тестам
+                </a>
+              </div>
+            )}
+
+            {user && user.is_teacher && (
+              <div>
+                <p className="mb-4">
+                  Вы можете создавать тесты и просматривать результаты студентов.
+                </p>
+                <div className="flex space-x-4">
+                  <a 
+                    href="/tests/create" 
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                  >
+                    Создать тест
+                  </a>
+                  <a 
+                    href="/tests/results" 
+                    className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+                  >
+                    Результаты
+                  </a>
                 </div>
               </div>
-            </div>
-            
+            )}
           </div>
         </div>
       </main>

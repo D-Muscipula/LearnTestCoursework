@@ -42,7 +42,6 @@ const Header: React.FC = () => {
     router.push('/login');
   };
 
-
   return (
     <header className="w-full bg-gray-800 text-white p-4 shadow-md">
       <div className="container mx-auto flex justify-between items-center">
@@ -69,6 +68,12 @@ const Header: React.FC = () => {
           {isLoggedIn && isTeacher && (
             <Link href="/tests/results" className="hover:text-gray-400">
               Результаты
+            </Link>
+          )}
+
+          {isLoggedIn && (
+            <Link href="/profile" className="hover:text-gray-400">
+              Профиль
             </Link>
           )}
  

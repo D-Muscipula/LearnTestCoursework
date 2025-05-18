@@ -133,6 +133,11 @@ export const tests = {
     const response = await api.get<TestResult[]>('/results/teacher/');
     return response.data;
   },
+
+  getUserResults: async () => {
+    const response = await api.get<TestResult[]>('/results/');
+    return response.data;
+  },
 };
 
 export default api; 
