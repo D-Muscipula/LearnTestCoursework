@@ -85,7 +85,7 @@ export const auth = {
     return response.data;
   },
   verifyToken: async () => {
-    const response = await api.get('/verify-token/');
+    const response = await api.get('/users/me/');
     return response.data;
   },
 };

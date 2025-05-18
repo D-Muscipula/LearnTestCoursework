@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import { tests } from '../../lib/api';
+import { tests, auth } from '../../lib/api';
 
 interface Question {
   text: string;
@@ -16,6 +16,8 @@ interface Question {
 
 export default function CreateTestPage() {
   const router = useRouter();
+  const [isTeacher, setIsTeacher] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -35,7 +37,39 @@ export default function CreateTestPage() {
     },
   ]);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const checkTeacherStatus = async () => {
+      try {
+        const userData = await auth.verifyToken();
+        if (!userData.is_teacher) {
+          // Если пользователь не учитель, перенаправляем на страницу входа
+          router.push('/login');
+        } else {
+          setIsTeacher(true);
+        }
+      } catch {
+        // Если не удалось получить данные, перенаправляем на страницу входа
+        router.push('/login');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkTeacherStatus();
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl">Проверка прав доступа...</div>
+      </div>
+    );
+  }
+
+  if (!isTeacher) {
+    return null;
+  }
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>

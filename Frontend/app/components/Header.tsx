@@ -1,15 +1,41 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { auth } from '../lib/api';
 
 const Header: React.FC = () => {
   const router = useRouter();
-  const isLoggedIn = typeof window !== 'undefined' && localStorage.getItem('token');
+  const [isTeacher, setIsTeacher] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkUserStatus = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const response = await auth.verifyToken();
+          setIsLoggedIn(true);
+          setIsTeacher(response.is_teacher || false);
+        } catch {
+          // Если токен невалиден, разлогиниваем
+          localStorage.removeItem('token');
+          localStorage.removeItem('is_teacher');
+          setIsLoggedIn(false);
+          setIsTeacher(false);
+        }
+      }
+    };
+
+    checkUserStatus();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('is_teacher');
+    setIsLoggedIn(false);
+    setIsTeacher(false);
     router.push('/login');
   };
 
@@ -29,6 +55,12 @@ const Header: React.FC = () => {
           <Link href="/tests" className="hover:text-gray-400">
             Тесты
           </Link>
+          
+          {isLoggedIn && isTeacher && (
+            <Link href="/tests/create" className="hover:text-gray-400">
+              Создать тест
+            </Link>
+          )}
  
           {isLoggedIn ? (
             <button

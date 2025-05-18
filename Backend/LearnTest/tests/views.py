@@ -141,7 +141,25 @@ class TestResultViewSet(viewsets.ModelViewSet):
 
 
 class UserViewSet(viewsets.GenericViewSet):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
+    @action(detail=False, methods=['get'])
+    def me(self, request):
+        is_teacher = (
+            request.user.is_staff or 
+            hasattr(request.user, 'is_teacher') and 
+            request.user.is_teacher
+        )
+        
+        return Response({
+            'id': request.user.id,
+            'username': request.user.username,
+            'email': request.user.email,
+            'first_name': request.user.first_name,
+            'last_name': request.user.last_name,
+            'group_number': getattr(request.user, 'group_number', ''),
+            'is_teacher': is_teacher
+        })
 
     @action(detail=False, methods=['post'])
     def register(self, request):
