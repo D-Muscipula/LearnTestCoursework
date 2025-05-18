@@ -52,7 +52,6 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       <main className="flex-grow bg-gray-100 flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8">
           <h2 className="text-2xl font-bold text-center mb-6">Регистрация</h2>
@@ -118,7 +117,6 @@ export default function RegisterPage() {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

@@ -11,7 +11,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
     const isPublicPath = PUBLIC_PATHS.includes(pathname);
 
     if (!token && !isPublicPath) {
