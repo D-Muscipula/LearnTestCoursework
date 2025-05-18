@@ -68,7 +68,11 @@ export const auth = {
       }
     });
     return response.data;
-  }
+  },
+  verifyToken: async () => {
+    const response = await api.get('/verify-token/');
+    return response.data;
+  },
 };
 
 export const tests = {
