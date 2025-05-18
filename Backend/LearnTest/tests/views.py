@@ -11,7 +11,6 @@ from .serializer import (
 from .permissions import (
     IsOwnerOrReadOnly,
     IsTeacherOrAdmin,
-    IsStudentUser
 )
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -69,40 +68,42 @@ class TestResultViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         except TestResult.DoesNotExist:
             return Response(
-                {'error': 'Результат не найден'}, 
+                {'error': 'Результат не найден'},
                 status=status.HTTP_404_NOT_FOUND
             )
 
     def create(self, request, *args, **kwargs):
         test_id = request.data.get('test')
         answers = request.data.get('answers', {})
-        
+
         try:
             test = Test.objects.get(id=test_id)
         except Test.DoesNotExist:
             return Response(
-                {'error': 'Тест не найден'}, 
+                {'error': 'Тест не найден'},
                 status=status.HTTP_404_NOT_FOUND
             )
 
         correct_answers = 0
         total_questions = test.questions.count()
-        
+
         for question in test.questions.all():
             correct_answer = question.answers.filter(is_correct=True).first()
-            if correct_answer and str(answers.get(str(question.id))) == str(correct_answer.id):
+            user_answer = str(answers.get(str(question.id)))
+            if correct_answer and user_answer == str(correct_answer.id):
                 correct_answers += 1
-        
-        score = (correct_answers / total_questions) * 100 if total_questions > 0 else 0
+
+        score = (correct_answers / total_questions) * \
+            100 if total_questions > 0 else 0
         is_passed = score >= 70  # Проходной балл 70%
-        
+
         result = TestResult.objects.create(
             user=request.user,
             test=test,
             score=score,
             is_passed=is_passed
         )
-        
+
         serializer = self.get_serializer(result)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -116,6 +117,6 @@ class UserViewSet(viewsets.GenericViewSet):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         return Response({
-            'id': user.id, 
+            'id': user.id,
             'email': user.email
         })

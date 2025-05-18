@@ -85,7 +85,7 @@ class Answer(models.Model):
     )
     text: TextField = models.TextField(verbose_name="Текст ответа")
     is_correct: BooleanField = models.BooleanField(
-        default=False, 
+        default=False,
         verbose_name="Правильный ответ"
     )
 
@@ -100,26 +100,26 @@ class Answer(models.Model):
 
 class TestResult(models.Model):
     """Результат прохождения теста пользователем"""
-    user = models.ForeignKey(
+    user: 'models.ForeignKey' = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='test_results',
         verbose_name="Пользователь"
     )
-    test = models.ForeignKey(
+    test: 'models.ForeignKey' = models.ForeignKey(
         Test,
         on_delete=models.CASCADE,
         related_name='results',
         verbose_name="Тест"
     )
-    score = models.PositiveIntegerField(
+    score: models.PositiveIntegerField = models.PositiveIntegerField(
         verbose_name="Набранные баллы"
     )
-    passed_at = models.DateTimeField(
+    passed_at: models.DateTimeField = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Дата прохождения"
     )
-    is_passed = models.BooleanField(
+    is_passed: models.BooleanField = models.BooleanField(
         default=False,
         verbose_name="Тест пройден"
     )
