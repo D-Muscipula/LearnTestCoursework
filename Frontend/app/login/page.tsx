@@ -27,7 +27,7 @@ export default function LoginPage() {
     try {
       const response = await auth.login({ username, password });
       localStorage.setItem('token', response.token);
-      router.push('/tests');
+      router.push('/');
     } catch (err) {
       setError('Неверное имя пользователя или пароль');
     } finally {

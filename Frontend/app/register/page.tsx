@@ -43,7 +43,7 @@ export default function RegisterPage() {
         password: formData.password,
         first_name: formData.firstName,
         last_name: formData.lastName,
-        group_number: formData.groupNumber || null
+        group_number: formData.groupNumber || ''
       });
       router.push('/login');
     } catch (err: any) {
