@@ -23,16 +23,23 @@ class AnswerSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     """Сериализатор Question с вложенными ответами."""
-    answers = AnswerSerializer(many=True, read_only=True)
+    answers = AnswerSerializer(many=True)
 
     class Meta:
         model = Question
         fields = ['id', 'text', 'order', 'answers']
 
+    def create(self, validated_data):
+        answers_data = validated_data.pop('answers')
+        question = Question.objects.create(**validated_data)
+        for answer_data in answers_data:
+            Answer.objects.create(question=question, **answer_data)
+        return question
+
 
 class TestSerializer(serializers.ModelSerializer):
     """Сериализатор Test с вложенными вопросами."""
-    questions = QuestionSerializer(many=True, read_only=True)
+    questions = QuestionSerializer(many=True)
     created_by = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
@@ -44,6 +51,16 @@ class TestSerializer(serializers.ModelSerializer):
             'created_at', 'time_limit', 'is_published',
             'questions', 'allowed_groups'
         ]
+
+    def create(self, validated_data):
+        questions_data = validated_data.pop('questions')
+        test = Test.objects.create(**validated_data)
+        for question_data in questions_data:
+            QuestionSerializer().create({
+                **question_data,
+                'test': test
+            })
+        return test
 
 
 class TestResultSerializer(serializers.ModelSerializer):
