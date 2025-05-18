@@ -1,5 +1,6 @@
 'use client';
 
+import { use } from 'react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { tests } from '../../lib/api';
@@ -7,7 +8,8 @@ import type { Test, Question } from '../../lib/api';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
-export default function TestPage({ params }: { params: { id: string } }) {
+export default function TestPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const router = useRouter();
   const [test, setTest] = useState<Test | null>(null);
   const [answers, setAnswers] = useState<Record<number, number>>({});
@@ -19,7 +21,7 @@ export default function TestPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchTest = async () => {
       try {
-        const testData = await tests.getById(parseInt(params.id));
+        const testData = await tests.getById(parseInt(id));
         setTest(testData);
         setTimeLeft(testData.time_limit * 60); // Конвертируем минуты в секунды
       } catch (err) {
@@ -29,7 +31,7 @@ export default function TestPage({ params }: { params: { id: string } }) {
       }
     };
     fetchTest();
-  }, [params.id]);
+  }, [id]);
 
   useEffect(() => {
     if (timeLeft <= 0) return;
@@ -60,7 +62,7 @@ export default function TestPage({ params }: { params: { id: string } }) {
     setIsSubmitting(true);
 
     try {
-      const result = await tests.submitResult(parseInt(params.id), answers);
+      const result = await tests.submitResult(parseInt(id), answers);
       router.push(`/results/${result.id}`);
     } catch (err) {
       setError('Ошибка при отправке результатов');
