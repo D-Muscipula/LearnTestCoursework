@@ -26,19 +26,10 @@ const Header: React.FC = () => {
         </Link>
         
         <nav className="flex space-x-4">
-          <Link href="/" className="hover:text-gray-400">
-            Главная
-          </Link>
           <Link href="/tests" className="hover:text-gray-400">
             Тесты
           </Link>
-          <Link href="#about" className="hover:text-gray-400">
-            О нас
-          </Link>
-          <Link href="#contact" className="hover:text-gray-400">
-            Контакты
-          </Link>
-
+ 
           {isLoggedIn ? (
             <button
               onClick={handleLogout}
@@ -47,9 +38,14 @@ const Header: React.FC = () => {
               Выйти
             </button>
           ) : (
-            <Link href="/login" className="hover:text-gray-400">
-              Войти
-            </Link>
+            <>
+              <Link href="/login" className="hover:text-gray-400">
+                Войти
+              </Link>
+              <Link href="/register" className="hover:text-gray-400">
+                Регистрация
+              </Link>
+            </>
           )}
         </nav>
       </div>
