@@ -58,15 +58,13 @@ export const auth = {
     return response.data;
   },
   register: async (data: {
-    username: string;
     email: string;
     password: string;
+    first_name: string;
+    last_name: string;
+    group_number?: string | null;
   }) => {
-    const response = await axios.post(`${API_URL}/users/register/`, data, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
+    const response = await axios.post(`${API_URL}/users/register/`, data);
     return response.data;
   },
   verifyToken: async () => {

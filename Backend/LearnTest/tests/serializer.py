@@ -61,15 +61,21 @@ class TestResultSerializer(serializers.ModelSerializer):
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     email = serializers.EmailField(required=True)
+    first_name = serializers.CharField(required=True)
+    last_name = serializers.CharField(required=True)
+    group_number = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password']
+        fields = ['email', 'password', 'first_name', 'last_name', 'group_number']
 
     def create(self, validated_data):
+        group_number = validated_data.pop('group_number', None)
         user = User.objects.create_user(
-            username=validated_data['username'],
+            username=validated_data['email'],  # Используем email как username
             email=validated_data['email'],
-            password=validated_data['password']
+            password=validated_data['password'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name']
         )
         return user

@@ -10,10 +10,12 @@ import { auth } from '../lib/api';
 export default function RegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    username: '',
     email: '',
     password: '',
-    passwordConfirm: ''
+    passwordConfirm: '',
+    firstName: '',
+    lastName: '',
+    groupNumber: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,7 +31,6 @@ export default function RegisterPage() {
     e.preventDefault();
     setError('');
     
-    // Проверка совпадения паролей
     if (formData.password !== formData.passwordConfirm) {
       setError('Пароли не совпадают');
       return;
@@ -38,13 +39,15 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await auth.register({
-        username: formData.username,
         email: formData.email,
-        password: formData.password
+        password: formData.password,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        group_number: formData.groupNumber || null
       });
       router.push('/login');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Ошибка при регистрации');
+      setError(err.response?.data?.detail || 'Ошибка при регистрации');
     } finally {
       setLoading(false);
     }
@@ -57,17 +60,6 @@ export default function RegisterPage() {
           <h2 className="text-2xl font-bold text-center mb-6">Регистрация</h2>
           {error && <div className="mb-4 text-red-500 text-center">{error}</div>}
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Имя пользователя</label>
-              <input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border rounded"
-              />
-            </div>
             <div>
               <label className="block text-sm font-medium mb-1">Email</label>
               <input
@@ -98,6 +90,38 @@ export default function RegisterPage() {
                 value={formData.passwordConfirm}
                 onChange={handleChange}
                 required
+                className="w-full px-3 py-2 border rounded"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Имя</label>
+              <input
+                type="text"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                required
+                className="w-full px-3 py-2 border rounded"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Фамилия</label>
+              <input
+                type="text"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                required
+                className="w-full px-3 py-2 border rounded"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Номер группы (необязательно)</label>
+              <input
+                type="text"
+                name="groupNumber"
+                value={formData.groupNumber}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border rounded"
               />
             </div>

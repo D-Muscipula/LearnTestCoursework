@@ -74,4 +74,7 @@ class UserViewSet(viewsets.GenericViewSet):
         serializer = UserRegistrationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        return Response({'id': user.id, 'username': user.username})
+        return Response({
+            'id': user.id, 
+            'email': user.email
+        })
