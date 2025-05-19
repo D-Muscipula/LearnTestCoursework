@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  db:
+    build: 
+      context: ./postgres
+      dockerfile: Dockerfile
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    environment:
+      - POSTGRES_DB=learntest
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data: 

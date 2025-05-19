@@ -14,6 +14,7 @@ class Command(BaseCommand):
         # Создаем или получаем существующих пользователей
         teacher, teacher_created = User.objects.get_or_create(
             username='teacher1', 
+            email='teacher1',
             defaults={
                 'is_staff': True
             }
