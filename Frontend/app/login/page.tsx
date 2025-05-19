@@ -45,7 +45,7 @@ export default function LoginPage() {
           )}
           <div className="mb-4">
             <label htmlFor="username" className="block text-sm font-semibold mb-1">
-              Имя пользователя:
+              Почта:
             </label>
             <input
               id="username"

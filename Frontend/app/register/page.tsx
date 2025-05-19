@@ -116,7 +116,7 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Номер группы (необязательно)</label>
+              <label className="block text-sm font-medium mb-1">Номер группы</label>
               <input
                 type="text"
                 name="groupNumber"

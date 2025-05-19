@@ -185,7 +185,7 @@ class UserViewSet(viewsets.GenericViewSet):
             'is_teacher': is_teacher
         })
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
     def register(self, request):
         serializer = UserRegistrationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
